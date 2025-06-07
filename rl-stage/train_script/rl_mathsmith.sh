@@ -14,7 +14,7 @@ my_test_data=../data/test-50-rationale-chat.parquet
 test_files="['$my_test_data']"
 cold_start_model="MathSmith-cold-start-8B"
 
-python3 -m verl.trainer.main_ppo --config-path=./verl/trainer/config \
+python3 -m verl.trainer.main_ppo \
     --config-name='ppo_trainer.yaml'\
     algorithm.adv_estimator=grpo \
     data.train_files="$train_files" \
