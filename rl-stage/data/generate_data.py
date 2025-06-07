@@ -82,4 +82,4 @@ def sample_inputs(n_prompts):
 
 data = sample_inputs(MAX_SAMPLE)
 df = pd.DataFrame(data)
-df.to_parquet("../grpo_data/train-10k-rationale-chat.parquet", index=False)
+df.to_parquet("./train-10k-rationale-chat.parquet", index=False)
