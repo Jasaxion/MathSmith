@@ -1,0 +1,50 @@
+### model
+model_name_or_path: Qwen/Qwen3_8B
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_alpha: 32
+lora_dropout: 0.05
+lora_rank: 16
+lora_target: all
+
+### dataset
+dataset: wthinking-MathSmith-Qwen3-8B-Hard-Consist-step100
+template: qwen3
+dataset_dir: ./qa_sft_data
+cutoff_len: 4096
+max_samples: 10000
+preprocessing_num_workers: 16
+
+### output
+output_dir: ./eval_model/lora/MathSmith-Qwen3-8B-wthinking
+logging_steps: 5
+save_steps: 50
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: wandb
+
+### train
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-04
+num_train_epochs: 8.0
+lr_scheduler_type: cosine
+warmup_steps: 50
+bf16: true
+ddp_timeout: 180000000
+flash_attn: auto
+include_num_input_tokens_seen: true
+max_grad_norm: 1.0
+optim: adamw_torch
+packing: false
+enable_thinking: true
+
+### swanlab
+# swanlab_mode: local
+# swanlab_project: MathSmith-Qwen3-8B-wthinking-0609
+# use_swanlab: true
