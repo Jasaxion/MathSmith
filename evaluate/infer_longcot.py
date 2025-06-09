@@ -21,7 +21,7 @@ def main():
     parser.add_argument("--top_p", type=float, default=0.95, help="Top-p sampling for generation.")
     parser.add_argument("--repetition_penalty", type=float, default=1.0)
     parser.add_argument("--max_len", type=int, default=32768, help="Maximum number of tokens to generate.")
-    parser.add_argument("--use_chat_template", type=str2bool, default=False)
+    parser.add_argument("--use_chat_template", type=str2bool, default=True)
     parser.add_argument("--n", type=int, default=8)
     parser.add_argument("--max_retries", type=int, default=8)
 
@@ -55,16 +55,14 @@ def main():
             for line in f.readlines():
                 item = json.loads(line)
                 prompt = item["prompt"]
-                # if args.use_chat_template:
-                #     messages = [
-                #         {"role": "user", "content": prompt}
-                #     ]
-                #     prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-                if not args.thinking:
-                    prompt += "\n</think>\n"
+                if args.use_chat_template:
+                    messages = [
+                        {"role": "user", "content": prompt}
+                    ]
+                    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
                 prompts.append(prompt)
                 items.append(item)
-
+        # print(prompts[0])
         with torch.no_grad():
             sampling_params = SamplingParams(
                 temperature=args.temperature,
@@ -73,12 +71,11 @@ def main():
                 repetition_penalty=args.repetition_penalty,
                 seed=seed,
             )
-            seed += 1
 
-            # Generate completions for remaining prompts
-            batch_outputs = model.generate(prompts, sampling_params)
-            batch_texts = [completion.outputs[0].text for completion in batch_outputs]
-        completions.extend(batch_texts)
+        # Generate completions for remaining prompts
+        batch_outputs = model.generate(prompts, sampling_params)
+        batch_texts = [completion.outputs[0].text for completion in batch_outputs]
+    completions.extend(batch_texts)
 
     os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
     with open(args.output_path, "w", encoding="utf-8") as f:
