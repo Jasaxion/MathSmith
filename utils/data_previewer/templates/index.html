@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/katex/katex.min.css">
+    <script defer src="/static/katex/katex.min.js"></script>
+    <script defer src="/static/katex/auto-render.min.js"
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false},
+                {left: '\\\\[', right: '\\\\]', display: true}
+            ],
+            throwOnError: false
+        });"></script>
+    <title>MathSmith Preview</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        .entry { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+        pre { background-color: #f7f7f7; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>MathSmith Preview - Page {{ current_page }} / {{ total_pages }}</h1>
+
+    {% for item in page_data %}
+    <div class="entry">
+        <strong>Prompt:</strong>
+        <pre>{{ item.prompt }}</pre>
+
+        <strong>Output:</strong>
+        <pre>{{ item.output }}</pre>
+
+        <details>
+            <summary><strong>Answers (点击展开)</strong></summary>
+            <ul>
+                {% for ans in item.answer %}
+                <li><strong>Answer-{{ loop.index }}:</strong> {{ ans }}</li>
+                {% endfor %}
+            </ul>
+        </details>
+
+        <strong>Rationale:</strong>
+        <pre>{{ item.rationale }}</pre>
+
+        <strong>Problem:</strong>
+        <div class="math">{{ item.problem | safe }}</div>
+
+        <strong>r_format:</strong> {{ item.r_format }}<br>
+        <strong>avg_cot_len:</strong> {{ item.avg_cot_len }}<br>
+        <strong>r_cot_len:</strong> {{ item.r_cot_len }}
+    </div>
+    {% endfor %}
+
+    <div>
+        {% if current_page > 1 %}
+            <a href="/?page={{ current_page - 1 }}">⬅️ 上一页</a>
+        {% endif %}
+
+        {% if current_page < total_pages %}
+            <a href="/?page={{ current_page + 1 }}" style="margin-left: 20px;">➡️ 下一页</a>
+        {% endif %}
+    </div>
+
+    <form method="get" style="margin-top: 20px;">
+        跳转到第 <input type="number" name="page" min="1" max="{{ total_pages }}" value="{{ current_page }}">
+        页 <button type="submit">Go</button>
+    </form>
+</body>
+</html>
