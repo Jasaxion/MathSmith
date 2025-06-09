@@ -49,6 +49,7 @@ def main():
     items = []
     completions = []
     seed = 0
+    system_prompt = "Please reason step by step, and put your final answer within \\boxed{}."
     for _ in range(args.n):
         prompts = []
         with open(args.data_path, encoding="utf-8") as f:
@@ -57,12 +58,13 @@ def main():
                 prompt = item["prompt"]
                 if args.use_chat_template:
                     messages = [
+                        {"role": "system", "content": system_prompt},
                         {"role": "user", "content": prompt}
                     ]
                     prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
                 prompts.append(prompt)
                 items.append(item)
-        # print(prompts[0])
+
         with torch.no_grad():
             sampling_params = SamplingParams(
                 temperature=args.temperature,
