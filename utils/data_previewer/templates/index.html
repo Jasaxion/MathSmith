@@ -33,7 +33,7 @@
         <pre>{{ item.output }}</pre>
 
         <details>
-            <summary><strong>Answers (点击展开)</strong></summary>
+            <summary><strong>Answers (Click to expand)</strong></summary>
             <ul>
                 {% for ans in item.answer %}
                 <li><strong>Answer-{{ loop.index }}:</strong> {{ ans }}</li>
@@ -55,17 +55,17 @@
 
     <div>
         {% if current_page > 1 %}
-            <a href="/?page={{ current_page - 1 }}">⬅️ 上一页</a>
+            <a href="/?page={{ current_page - 1 }}">⬅️ Previous</a>
         {% endif %}
 
         {% if current_page < total_pages %}
-            <a href="/?page={{ current_page + 1 }}" style="margin-left: 20px;">➡️ 下一页</a>
+            <a href="/?page={{ current_page + 1 }}" style="margin-left: 20px;">➡️ Next</a>
         {% endif %}
     </div>
 
     <form method="get" style="margin-top: 20px;">
-        跳转到第 <input type="number" name="page" min="1" max="{{ total_pages }}" value="{{ current_page }}">
-        页 <button type="submit">Go</button>
+        Jump to <input type="number" name="page" min="1" max="{{ total_pages }}" value="{{ current_page }}">
+        page <button type="submit">Go</button>
     </form>
 </body>
 </html>
