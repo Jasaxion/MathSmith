@@ -2,7 +2,7 @@ import random
 import regex
 import re
 import sympy
-from latex2sympy2 import latex2sympy
+# from latex2sympy2 import latex2sympy
 from typing import TypeVar, Iterable, List, Union, Any, Dict
 from word2number import w2n
 from .util import *
@@ -28,7 +28,7 @@ from collections import defaultdict
 from sympy import simplify, N
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.parsing.latex import parse_latex
-from latex2sympy2 import latex2sympy
+# from latex2sympy2 import latex2sympy
 
 
 def get_examples():
@@ -998,7 +998,8 @@ def extract_theoremqa_answer(pred: str, answer_flag: bool = True):
             pred = pred.split("=")[-1].strip()
             pred = clean_units(pred)
             try:
-                tmp = str(latex2sympy(pred))
+                # tmp = str(latex2sympy(pred))
+                tmp = str(parse_latex(pred))
                 pred = str(eval(tmp))
             except Exception:
                 if re.match(r"-?[\d\.]+\s\D+$", pred):
@@ -1565,7 +1566,8 @@ def numeric_equal(prediction: float, reference: float):
 
 def symbolic_equal(a, b):
     def _parse(s):
-        for f in [parse_latex, parse_expr, latex2sympy]:
+        # for f in [parse_latex, parse_expr, latex2sympy]:
+        for f in [parse_latex, parse_expr]:
             try:
                 return f(s.replace("\\\\", "\\"))
             except:

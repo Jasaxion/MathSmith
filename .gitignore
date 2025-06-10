@@ -5,6 +5,8 @@ __pycache__/
 
 # tmp
 # *.jsonl
+results/
+output/
 
 # data file
 *.parquet

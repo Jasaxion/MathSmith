@@ -22,6 +22,7 @@ def main():
     parser.add_argument("--repetition_penalty", type=float, default=1.0)
     parser.add_argument("--max_len", type=int, default=32768, help="Maximum number of tokens to generate.")
     parser.add_argument("--use_chat_template", type=str2bool, default=True)
+    parser.add_argument("--use_concat", type=str2bool, default=False, help="Whether to use concatenation for prompts or System/User format.")
     parser.add_argument("--n", type=int, default=8)
     parser.add_argument("--max_retries", type=int, default=8)
 
@@ -57,11 +58,18 @@ def main():
                 item = json.loads(line)
                 prompt = item["prompt"]
                 if args.use_chat_template:
-                    messages = [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ]
-                    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
+                    if args.use_concat:
+                        prompt = prompt + " " + system_prompt
+                        messages = [
+                            {"role": "user", "content": prompt}
+                        ]
+                        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
+                    else:
+                        messages = [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": prompt}
+                        ]
+                        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
                 prompts.append(prompt)
                 items.append(item)
 

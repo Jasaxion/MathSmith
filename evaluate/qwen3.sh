@@ -1,4 +1,3 @@
-# pip install sympy==1.13
 python infer_longcot.py \
   --data_path data/qwen3/aime2024_test.jsonl \
   --output_path output/qwen3/aime2024_predictions_thinking.jsonl \
@@ -7,5 +6,4 @@ python infer_longcot.py \
   --n 1 \
   --thinking
 
-# pip install sympy==1.10
 python cal_acc.py --output_path output/qwen3/aime2024_predictions_thinking.jsonl
