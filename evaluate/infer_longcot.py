@@ -63,13 +63,23 @@ def main():
                         messages = [
                             {"role": "user", "content": prompt}
                         ]
-                        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
+                        # prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
                     else:
                         messages = [
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": prompt}
                         ]
-                        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
+                        # prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=args.thinking)
+                    template_kwargs = {
+                        "tokenize": False,
+                        "add_generation_prompt": True,
+                    }
+
+                    if 'qwen3' in args.model_path.lower():
+                        template_kwargs['enable_thinking'] = args.thinking
+
+                    prompt = tokenizer.apply_chat_template(messages, **template_kwargs)
+                
                 prompts.append(prompt)
                 items.append(item)
 
