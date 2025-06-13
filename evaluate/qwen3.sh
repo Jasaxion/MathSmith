@@ -2,7 +2,7 @@
 set -e
 
 model_name='Qwen/Qwen3-8B'
-output_dir = 'output/qwen3-thinking'
+output_dir='output/qwen3-thinking'
 n_gpus=1
 n=1
 
