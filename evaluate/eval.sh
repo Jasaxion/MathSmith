@@ -8,8 +8,9 @@ declare -a model_list=(
     "/home/qwen/qwen_model,Thinking,True"
     # "meta-llama/Llama-2-7b-chat-hf,_finetuned"
 )
-n_gpus=2
+n_gpus=8
 n=1
+result_out_file="./results/results.csv"
 
 for item in "${model_list[@]}"; do
     IFS=',' read -r model_name suffix use_thinking <<< "$item"
@@ -34,7 +35,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x1.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
     echo "AIME 2024 processed completed"
     echo ""
 
@@ -48,7 +49,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x2.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
     echo "AIME 2024 processed completed"
     echo ""
 
@@ -62,7 +63,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x3.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2024_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
     echo "AIME 2024 processed completed"
     echo ""
     # --- AIME 2024 End ---
@@ -78,7 +79,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x1.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
     echo "AIME 2025 processed completed"
     echo ""
 
@@ -91,7 +92,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x2.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
     echo "AIME 2025 processed completed"
     echo ""
 
@@ -104,7 +105,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x3.jsonl"
+    python cal_acc.py --output_path "${output_dir}/aime2025_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
     echo "AIME 2025 processed completed"
     echo ""
     # --- AIME 2025 End ---
@@ -120,7 +121,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x1.jsonl"
+    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
     echo "MATH500 processed completed"
     echo ""
 
@@ -133,7 +134,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x2.jsonl"
+    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
     echo "MATH500 processed completed"
     echo ""
 
@@ -146,7 +147,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x3.jsonl"
+    python cal_acc.py --output_path "${output_dir}/math500_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
     echo "MATH500 processed completed"
     echo ""
     # --- MATH500 End---
@@ -162,7 +163,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x1.jsonl"
+    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
     echo "Gsm8k processed completed"
     echo ""
 
@@ -175,7 +176,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x2.jsonl"
+    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
     echo "Gsm8k processed completed"
     echo ""
 
@@ -188,7 +189,7 @@ for item in "${model_list[@]}"; do
     --n "${n}" \
     ${thinking_arg}
 
-    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x3.jsonl"
+    python cal_acc.py --output_path "${output_dir}/gsm8k_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
     echo "Gsm8k processed completed"
     echo ""
     # --- Gsm8k End---
