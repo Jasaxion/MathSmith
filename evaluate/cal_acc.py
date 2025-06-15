@@ -55,12 +55,12 @@ def main():
                 completion = item["completion"]
                 reference_solution = item.get("reference_solution", item.get("solution"))
 
-                if source in ["gsm8k"]:
+                if source in ["gsm8k", "gsmhard"]:
                     correct = math_equal(
                         extract_answer(completion),
                         reference_solution.split("####")[-1].strip()
                     )
-                elif source in ["math", "aime2024", "aime2025"]:
+                elif source in ["math", "aime2024", "aime2025", ""]:
                     correct = math_equal(
                         extract_answer(completion),
                         strip_string(reference_solution.split("####")[1].strip()),

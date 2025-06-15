@@ -9,6 +9,9 @@ def download_math_benchmarks_separately():
         ("opencompass/AIME2025", "AIME2025-II", "test", "AIME2025-II"),
         ("openai/gsm8k", "main", "test", "GSM8k"),
         ("HuggingFaceH4/MATH-500", None, "test", "MATH"),
+        # new eval dataset
+        ("reasoning-machines/gsm-hard", None, "train", "GSM-Hard"),
+        ("di-zhang-fdu/College_Math_Test", None, "test", "CollegeMath"),
     ]
     output_dir = "./"
     created_files = []
