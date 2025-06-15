@@ -126,10 +126,17 @@ def load_problems(file_path: str) -> List[Dict]:
                         if "Problem" in record and isinstance(record["Problem"], str) and \
                            "Sampled_concept" in record and isinstance(record["Sampled_concept"], (str, list)):
                             problems_data.append(record)
+                        elif ("Problem" in record and isinstance(record["Problem"], str)) or \
+                            ("problem" in record and isinstance(record["problem"], str)):
+                            logging.warning(
+                                f"Line {line_num} in '{file_path}' is missing 'Sampled_concept' key, "
+                                f"using general problem loader..."
+                            )
+                            problems_data.append(record)
                         else:
                             logging.warning(
-                                f"Line {line_num} in '{file_path}' is missing 'Problem' or 'Sampled_concept' key, "
-                                f"or their types are incorrect: '{line_content_stripped[:200]}...'"
+                                f"Line {line_num} in '{file_path}' is missing 'Problem/problem' key, "
+                                f"skiping this line."
                             )
                     except json.JSONDecodeError as e:
                         logging.error(f"Error decoding JSON on line {line_num} in '{file_path}': {e} - Line: '{line_content_stripped[:200]}...'")
@@ -156,7 +163,8 @@ def process_problems_batch(
     prompts_batch = []
     valid_problems_in_batch = [] # Only valid problem and their original data are retained
     for i, problem_record in enumerate(problems_batch):
-        problem_text = problem_record.get("Problem", "")
+        # problem_text = problem_record.get("Problem", "")
+        problem_text = problem_record.get("Problem") or problem_record.get("problem")
         if not problem_text:
             logging.warning(f"Problem at index {batch_start_index + i} has no 'Problem' text. Skipping in this batch.")
             continue
@@ -258,7 +266,7 @@ def main():
     args = parser.parse_args()
 
     current_target_same_answer_count = args.target_same_answer_count
-    batch_size = args.batch_size # <--- 新增
+    batch_size = args.batch_size
 
     # --- File path and naming ---
     current_time_main = datetime.now()
