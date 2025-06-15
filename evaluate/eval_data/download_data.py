@@ -12,6 +12,7 @@ def download_math_benchmarks_separately():
         # new eval dataset
         ("reasoning-machines/gsm-hard", None, "train", "GSM-Hard"),
         ("di-zhang-fdu/College_Math_Test", None, "test", "CollegeMath"),
+        ("Hothan/OlympiadBench", "OE_TO_maths_en_COMP", "train", "olympiad"),
     ]
     output_dir = "./"
     created_files = []

@@ -60,7 +60,7 @@ def main():
                         extract_answer(completion),
                         reference_solution.split("####")[-1].strip()
                     )
-                elif source in ["math", "aime2024", "aime2025", ""]:
+                elif source in ["math", "aime2024", "aime2025", "olympiad"]:
                     correct = math_equal(
                         extract_answer(completion),
                         strip_string(reference_solution.split("####")[1].strip()),
