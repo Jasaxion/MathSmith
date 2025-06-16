@@ -196,7 +196,7 @@ def process_problems_batch(
         error_results = []
         for problem_record in valid_problems_in_batch:
              error_results.append({
-                "problem": problem_record.get("Problem", ""),
+                "problem": problem_record.get("Problem", "") or problem_record.get("problem", ""),
                 "answer": f"Error: vLLM batch generation failed: {e}",
                 "answer_dict": {},
                 "highest_freq": 0,
@@ -208,7 +208,7 @@ def process_problems_batch(
     batch_results = []
     for i, single_request_output in enumerate(request_outputs):
         current_problem_record = valid_problems_in_batch[i] # 结果与有效问题一一对应
-        current_problem_text = current_problem_record.get("Problem", "N/A")
+        current_problem_text = current_problem_record.get("Problem") or current_problem_record.get("problem") or "N/A"
 
         generated_samples_data = []
         num_received_samples = len(single_request_output.outputs)
