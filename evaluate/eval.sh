@@ -193,6 +193,90 @@ for item in "${model_list[@]}"; do
     echo "Gsm8k processed completed"
     echo ""
     # --- Gsm8k End---
+
+    # --- College Math Start---
+    # --- College Math ---
+    echo "Processing College Math(x1)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/CollegeMath.jsonl \
+    --output_path "${output_dir}/collegemath_predictions_thinking_x1.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/collegemath_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
+    echo "College Math processed completed"
+    echo ""
+
+    echo "Processing College Math(x2)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/CollegeMath.jsonl \
+    --output_path "${output_dir}/collegemath_predictions_thinking_x2.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/collegemath_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
+    echo "College Math processed completed"
+    echo ""
+
+    echo "Processing College Math(x3)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/CollegeMath.jsonl \
+    --output_path "${output_dir}/collegemath_predictions_thinking_x3.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/collegemath_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
+    echo "College Math processed completed"
+    echo ""
+    # --- College Math End---
+
+    # --- Gsm Hard Start---
+    # --- Gsm Hard ---
+    echo "Processing Gsm Hard(x1)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/GSM-Hard.jsonl \
+    --output_path "${output_dir}/gsm_hard_predictions_thinking_x1.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/gsm_hard_predictions_thinking_x1.jsonl" --results_path "${result_out_file}"
+    echo "Gsm hard processed completed"
+    echo ""
+
+    echo "Processing Gsm Hard(x2)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/GSM-Hard.jsonl \
+    --output_path "${output_dir}/gsm_hard_predictions_thinking_x2.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/gsm_hard_predictions_thinking_x2.jsonl" --results_path "${result_out_file}"
+    echo "Gsm hard processed completed"
+    echo ""
+
+    echo "Processing Gsm Hard(x3)..."
+    python infer_longcot.py \
+    --data_path data/qwen3/GSM-Hard.jsonl \
+    --output_path "${output_dir}/gsm_hard_predictions_thinking_x3.jsonl" \
+    --model_path "${model_name}" \
+    --n_gpus "${n_gpus}" \
+    --n "${n}" \
+    ${thinking_arg}
+
+    python cal_acc.py --output_path "${output_dir}/gsm_hard_predictions_thinking_x3.jsonl" --results_path "${result_out_file}"
+    echo "Gsm hard processed completed"
+    echo ""
+    # --- Gsm Hard End---
 done
 
 echo "✅ All tasks have been completed!"
