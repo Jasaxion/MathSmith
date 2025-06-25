@@ -8,6 +8,7 @@ from collections import defaultdict
 from eval.math_equivalence import is_equiv_minerva as is_equiv
 from eval.util import last_boxed_only_string, first_boxed_only_string, remove_boxed
 from eval.qwen_math import math_equal, extract_answer, strip_string
+from eval.juger import MathJudger
 import os
 import csv
 
@@ -45,6 +46,9 @@ def main():
 
     prompts_by_source = defaultdict(set)
 
+    scorer = MathJudger()
+    precision = 1e-4
+    
     for source in completions_by_prompt:
         for prompt in tqdm(completions_by_prompt[source]):
             completions = completions_by_prompt[source][prompt]
@@ -60,7 +64,7 @@ def main():
                         extract_answer(completion),
                         reference_solution.split("####")[-1].strip()
                     )
-                elif source in ["math", "aime2024", "aime2025", "olympiad"]:
+                elif source in ["math", "aime2024", "aime2025", "CollegeMath"]:
                     correct = math_equal(
                         extract_answer(completion),
                         strip_string(reference_solution.split("####")[1].strip()),
@@ -71,6 +75,11 @@ def main():
                             remove_boxed(last_boxed_only_string(reference_solution)),
                         )
                     )
+                elif source in ["olympiad"]:
+                    correct = scorer.judge(
+                        extract_answer(completion),
+                        strip_string(reference_solution.split("####")[1].strip()),
+                        precision)
                 else:
                     raise NotImplementedError(f"Source '{source}' is not implemented")
 
