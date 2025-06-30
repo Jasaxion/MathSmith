@@ -134,9 +134,7 @@ Given Concept and Explanation:
 
 """
 
-API_KEY = "62b0a785b37b572923420ab143119bf1"
-# client = OpenAI(api_key=API_KEY, base_url="https://api.deepseek.com")
-# client = OpenAI(api_key=API_KEY, base_url="http://api.schedule.mtc.sensetime.com")
+API_KEY = ""
 client = openai_proxy.GptProxy(api_key=API_KEY)
 MODEL = "gpt-4o-2024-11-20"
 SOURCE_DIR = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped_deduplicated.jsonl"
