@@ -1,0 +1,41 @@
+### model
+model_name_or_path: /media/data2/LLM/models/qwen/Qwen/Qwen2___5-Math-1___5B
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+deepspeed: ./sft/deepspeed/ds_z3_config.json
+
+### dataset
+dataset: MathSmith_Qwen_7B
+template: qwen
+# dataset_dir: Qwen2.5-Math-7B-Instruct_generated_answers.json
+cutoff_len: 4096
+max_samples: 10000
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 4
+
+### output
+output_dir: ./output/mathsmith-qwen2_5-Math-1_5b-self-improved
+logging_steps: 10
+save_steps: 100
+plot_loss: true
+overwrite_output_dir: true
+save_total_limit: 1
+save_only_model: false
+report_to: wandb
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 2
+learning_rate: 1.0e-5
+num_train_epochs: 2.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+flash_attn: auto
+resume_from_checkpoint: null
