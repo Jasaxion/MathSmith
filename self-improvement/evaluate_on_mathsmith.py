@@ -4,9 +4,8 @@ import torch
 from vllm import LLM, SamplingParams
 from transformers import AutoTokenizer
 from str2bool import str2bool
-from eval.math_equivalence import is_equiv_minerva as is_equiv
-from eval.util import last_boxed_only_string, first_boxed_only_string, remove_boxed
 from eval.qwen_math import math_equal, extract_answer, strip_string
+from eval.juger import MathJudger
 import os
 import re
 
@@ -103,6 +102,8 @@ def main():
     batch_outputs = model.generate(prompts, sampling_params)
     completions = [completion.outputs[0].text for completion in batch_outputs]
     
+    scorer = MathJudger()
+    precision = 1e-4
     idx = 0
     for item, completion in zip(items, completions):
         print(f"------{idx}-----")
@@ -114,16 +115,10 @@ def main():
             item["correctness"] = -1
             continue
         
-        correct = math_equal(
+        correct = scorer.judge(
             extract_answer(completion),
             strip_string(reference_solution.split("####")[1].strip()),
-            timeout=False,
-        ) or is_equiv(
-            remove_boxed(last_boxed_only_string(completion)),
-            reference_solution.split("####")[-1].strip() if "####" in reference_solution else (
-                remove_boxed(last_boxed_only_string(reference_solution)),
-            )
-        )
+            precision)
         item["correctness"] = int(correct)
         
         
