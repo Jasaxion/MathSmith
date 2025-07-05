@@ -9,7 +9,7 @@ finetuning_type: full
 deepspeed: ./sft/deepspeed/ds_z3_config.json
 
 ### dataset
-dataset: MathSmith_Qwen_7B
+dataset: MathSmith_Self_Improvement
 template: qwen
 # dataset_dir: Qwen2.5-Math-7B-Instruct_generated_answers.json
 cutoff_len: 4096
@@ -19,9 +19,9 @@ preprocessing_num_workers: 16
 dataloader_num_workers: 4
 
 ### output
-output_dir: ./output/mathsmith-qwen2_5-Math-1_5b-self-improved
+output_dir: ./output/qwen/mathsmith-qwen2_5-Math-1_5b-self-improved
 logging_steps: 10
-save_steps: 100
+save_steps: 1000
 plot_loss: true
 overwrite_output_dir: true
 save_total_limit: 1
@@ -29,8 +29,8 @@ save_only_model: false
 report_to: wandb
 
 ### train
-per_device_train_batch_size: 1
-gradient_accumulation_steps: 2
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
 learning_rate: 1.0e-5
 num_train_epochs: 2.0
 lr_scheduler_type: cosine
