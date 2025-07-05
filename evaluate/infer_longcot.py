@@ -40,7 +40,7 @@ def main():
     model = LLM(
         model=args.model_path,
         tokenizer=args.tokenizer_path,
-        tokenizer_mode="slow",
+        tokenizer_mode="auto",
         dtype=args.dtype,
         tensor_parallel_size=args.n_gpus,
         enforce_eager=True,
