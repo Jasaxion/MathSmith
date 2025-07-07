@@ -13,6 +13,7 @@ import yaml
 import subprocess
 import logging
 import sys
+import gc
 
 def create_logger(log_dir):
     today_str = datetime.now().strftime("%m-%d-%Y %H:%M:%S") 
@@ -74,6 +75,11 @@ def evaluate_on_mathsmith(model_path, prompts, solutions, args):
             incorrect_idxs.append(idx)
             
     del model
+    del batch_outputs
+    del scorer
+    gc.collect()
+    torch.cuda.empty_cache()
+    torch.cuda.ipc_collect()
     return 1 - len(incorrect_idxs) /num_valid_question, incorrect_idxs
 
 def sample_and_convert(idxs, train_data_path, n_sample, output_data_path):
