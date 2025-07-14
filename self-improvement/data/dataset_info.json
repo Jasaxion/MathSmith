@@ -715,8 +715,8 @@
     },
     "folder": "python"
   },
-  "MathSmith_Qwen_7B":{
-      "file_name": "/media/data2/LLM/MathSmith/self-improvement/output/data/Qwen2.5-Math-7B-Instruct_generated_answers.json",
+  "MathSmith_Self_Improvement":{
+      "file_name": "/media/data2/LLM/MathSmith/self-improvement/data/Self_Improvement_Data.json",
       "columns": {
         "prompt": "instruction",
         "query": "input",
