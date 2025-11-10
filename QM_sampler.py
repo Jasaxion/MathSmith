@@ -1,5 +1,3 @@
-# 问题生成Prompt 模型生成问题，vllm 版本
-
 from transformers import AutoTokenizer
 import json
 import os
@@ -10,12 +8,14 @@ import re
 from vllm import LLM, SamplingParams
 from tqdm import tqdm
 
+# This script is used to generate mathematical problems using the MathSmith model, based on given concepts and explanations.
+
 MAX_GEN = 100000
 BATCH_SIZE = 1000
 TENSOR_PARALLER_SIZE = 1
 MAX_N = 1
 model_list = [
-    "/data/zhansx/Mathsmith-model/MathSmith-Qwen3-8B-add_30_percent_consist-Step100/MathSmith-Qwen3-8B-add_30_percent_consist-Step100",
+    "Jasaxion/MathSmith-hc-Qwen3-8B",
 ]
 SOURCE_DIR = "./data_collect/sampled_concept/collect_planetmath_grouped_deduplicated.jsonl"
 SAMPLE_NUM = 5
