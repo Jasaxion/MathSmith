@@ -10,7 +10,7 @@ from fractions import Fraction
 import sys
 import math
 sys.set_int_max_str_digits(1000000)
-# 设置decimal的精度
+# Set the precision of decimal
 getcontext().prec = 50
 
 class MathJudger:

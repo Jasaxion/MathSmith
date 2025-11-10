@@ -3,11 +3,13 @@ import json
 import time
 import openai
 
-# === 配置部分 ===
+# Using GPT-4o to extract math concepts and explanation from PlanetMath markdown files
+
 openai.api_key = "sk-xxx"
 MODEL = "gpt-4o-mini"
-MD_FILE_PATH = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/open_corpus/planetmath/article-md-clean"
-OUTPUT_JSONL = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped.jsonl"
+# crawled markdown from planetmath
+MD_FILE_PATH = "./planetmath/article-md-clean"
+OUTPUT_JSONL = "./planetmath/collect_planetmath_grouped.jsonl"
 
 def extract_concepts_from_text(md_content: str) -> str:
     prompt = (
@@ -34,8 +36,8 @@ def extract_concepts_from_text(md_content: str) -> str:
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
-            print(f"❌ OpenAI API call failed — {e}")
-            print(f"🔁 Retrying in 5 seconds...")
+            print(f"OpenAI API call failed — {e}")
+            print(f"Retrying in 5 seconds...")
             time.sleep(5)
 
 import re
@@ -49,7 +51,7 @@ def parse_json_block(response_text: str):
         json_end = response_text.rfind("]") + 1
         json_block = response_text[json_start:json_end]
 
-        # ✅ 尝试转义 \ 为 \\ （排除已是双斜线的）
+        # Try escaping \ to \\ (excludes ones that are already double slashes)
         json_block_safe = re.sub(r'(?<!\\)\\(?![\\nt"])', r'\\\\', json_block)
 
         items = json.loads(json_block_safe)
@@ -67,29 +69,29 @@ def parse_json_block(response_text: str):
                     "Categories": item["Categories"]
                 })
             else:
-                print(f"⚠️ Missing expected fields in: {item}")
+                print(f"Missing expected fields in: {item}")
         return concepts, True
     except Exception as e:
-        print(f"❌ JSON block parsing failed: {e}")
+        print(f"JSON block parsing failed: {e}")
         return [], False
 
 
 
 def write_output(concepts, output_path, source_file):
     if not concepts:
-        print(f"⚠️ No concepts extracted from {source_file}")
+        print(f"No concepts extracted from {source_file}")
         return
     with open(output_path, "a", encoding="utf-8") as f:
         for concept in concepts:
             concept["source"] = source_file
             f.write(json.dumps(concept, ensure_ascii=False) + "\n")
-    print(f"✅ Saved concepts from {source_file} ({len(concepts)} entries)")
+    print(f"Saved concepts from {source_file} ({len(concepts)} entries)")
 
 if __name__ == "__main__":
     md_files = [f for f in os.listdir(MD_FILE_PATH) if f.endswith(".md")]
 
     if not md_files:
-        raise FileNotFoundError(f"❌ No .md files in: {MD_FILE_PATH}")
+        raise FileNotFoundError(f"No .md files in: {MD_FILE_PATH}")
 
     for md_file in md_files:
         full_path = os.path.join(MD_FILE_PATH, md_file)
@@ -100,7 +102,7 @@ if __name__ == "__main__":
         concepts, valid = parse_json_block(result_text)
 
         if not valid:
-            print(f"ℹ️ Skipped non-math file: {md_file}")
+            print(f"Skipped non-math file: {md_file}")
             continue
 
         write_output(concepts, OUTPUT_JSONL, md_file)

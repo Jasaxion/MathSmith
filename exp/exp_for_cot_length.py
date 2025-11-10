@@ -6,7 +6,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from transformers import AutoTokenizer
 
-# Step 0: 配置路径和模型
+# configure dataset file paths (from opendatasets or local files)
 file_paths = {
     "AIME_2024": "",
     "AIME2025-I": "",
@@ -16,14 +16,12 @@ file_paths = {
     "PromptCoT": ""
 }
 
-vllm_api_url = "http://localhost:8000/v1/completions"
-model_name = "/home/mnt/aliceguo/model_repo/qwen3/Qwen3-30B-A3B"
+vllm_api_url = "http://localhost:8000/v1/completions" # setup a vllm server for this script
+model_name = "Qwen/Qwen3-30B-A3B"
 system_prompt = "Please reason step by step, and put your final answer within \\boxed{}."
 
-# Step 1: 初始化 tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 
-# Step 2: 加载问题数据
 def load_problems(file_path, n=10):
     problems = []
     with open(file_path, "r", encoding="utf-8") as f:
@@ -33,7 +31,6 @@ def load_problems(file_path, n=10):
                 problems.append(obj["problem"])
     return random.sample(problems, min(n, len(problems)))
 
-# Step 3: 构建 Prompt
 def build_prompt(problem):
     return tokenizer.apply_chat_template(
         [
@@ -45,7 +42,6 @@ def build_prompt(problem):
         enable_thinking=True
     )
 
-# Step 4: 请求 vLLM 接口
 def query_vllm(prompts):
     payload = {
         "prompt": list(prompts),
@@ -69,25 +65,22 @@ def query_vllm(prompts):
     outputs.append(output_list)
     return outputs
 
-# Step 5: 提取 <think> 内容
 def extract_think_content(text):
     match = re.search(r"<think>(.*?)</think>", text, re.DOTALL)
     return match.group(1).strip() if match else ""
 
-# Step 6: 统计 token 长度（不加特殊符号）
 def count_tokens(text):
     return len(tokenizer.encode(text, add_special_tokens=False))
 
-# Step 7: 主流程
 result = {}
 
 for name, path in file_paths.items():
-    print(f"\n📊 Processing dataset: {name}")
+    print(f"\nProcessing dataset: {name}")
     try:
         problems = load_problems(path)
         print(len(problems), "problems loaded.")
     except Exception as e:
-        print(f"❌ Error loading {path}: {e}")
+        print(f"Error loading {path}: {e}")
         result[name] = []
         continue
 
@@ -101,12 +94,11 @@ for name, path in file_paths.items():
             token_len = count_tokens(think_text)
             think_lengths.append(token_len)
     except Exception as e:
-        print(f"⚠️ Error on a problem: {e}")
+        print(f"Error on a problem: {e}")
         think_lengths.append(0)
 
     result[name] = think_lengths
 
-# Step 8: 可视化结果
 plt.figure(figsize=(10, 6))
 for name, lengths in result.items():
     if lengths:
@@ -118,4 +110,4 @@ plt.title("Token Length Distribution of <think> Responses per Dataset")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("think_token_length_distribution.png")
+plt.savefig("think_token_length_distribution.pdf", dpi=300)

@@ -15,7 +15,7 @@ def deduplicate_concepts(input_path, output_path):
         for item in seen.values():
             outfile.write(json.dumps(item, ensure_ascii=False) + '\n')
 
-# 示例使用
-input_file = '/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped.jsonl'
-output_file = '/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped_deduplicated.jsonl'
+
+input_file = './planetmath/collect_planetmath_grouped.jsonl'
+output_file = './planetmath/collect_planetmath_grouped_deduplicated.jsonl'
 deduplicate_concepts(input_file, output_file)

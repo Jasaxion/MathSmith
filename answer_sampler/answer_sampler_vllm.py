@@ -1,5 +1,3 @@
-# 使用 VLLM 批量处理问题并生成答案
-# 该脚本将从指定的 JSONL 文件中读取问题，使用 vLLM 模型批量生成答案，并将结果保存到指定的输出目录中，并支持多数投票
 import os
 import sys
 import logging
@@ -10,9 +8,16 @@ from collections import Counter, defaultdict
 from typing import Optional, Union, List, Dict
 import argparse
 
-# --- Basic ---
+# This code is designed for batch processing of questions and generating answers, utilizing vLLM for inference and supporting majority voting.
+# python answer_sampler_vllm.py --input_file ./data/sample_problems.jsonl 
+#                               --output_dir ./data/answers_output 
+#                               --sample_answer_count 6 
+#                               --target_same_answer_count 3 
+#                               --batch_size 16
+
+# --- Basic Configuration ---
 LOG_DIR_BASE = "./logs"
-DEFAULT_SAMPLE_ANSWER = 6
+DEFAULT_SAMPLE_ANSWER = 6 # Default number of answers sampled per problem
 VLLM_MODEL_ID_CONST = "Qwen/Qwen3_30B_A3B"
 SYSTEM_PROMPT = "Please reason step by step, and put your final answer within \\boxed{}."
 ENABLE_THINKING = True # For the Qwen3 model, whether to enable thinking mode
@@ -59,7 +64,7 @@ logging.basicConfig(
     ]
 )
 
-# --- Version information printing ---
+# --- Version information printing for Docker Debugger ---
 current_working_directory = os.getcwd()
 logging.info(f"Current working directory of the Python script (Current Working Directory): {current_working_directory}")
 python_executable_path = sys.executable

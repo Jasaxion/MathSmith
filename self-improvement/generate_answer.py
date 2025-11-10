@@ -1,5 +1,3 @@
-# 使用 VLLM 批量处理问题并生成答案
-# 该脚本将从指定的 JSONL 文件中读取问题，使用 vLLM 模型批量生成答案，并将结果保存到指定的输出目录中，并支持多数投票
 import os
 import sys
 import logging
@@ -10,33 +8,29 @@ from collections import Counter, defaultdict
 from typing import Optional, Union, List, Dict
 import argparse
 
-# --- Basic ---
 LOG_DIR_BASE = "./logs"
 DEFAULT_SAMPLE_ANSWER = 6
-VLLM_MODEL_ID_CONST = "/media/data2/LLM/models/qwen/Qwen/Qwen2.5-Math-7B-Instruct"
+VLLM_MODEL_ID_CONST = "./Qwen/Qwen2.5-Math-7B-Instruct"
 SYSTEM_PROMPT = "Please reason step by step, and put your final answer within \\boxed{}."
-ENABLE_THINKING = False # For the Qwen3 model, whether to enable thinking mode
-VLLM_MAX_TOKEN = 4096 # vllm service maximum token length
-VLLM_TP = 1 # vllm tensor parallel size
-VLLM_GPU_MEMORY_UTILIZATION = 0.75 # Vllm GPU memory utilization
-MODEL_MAX_TOKEN = 4096 # Maximum token length requested by the model (must be less than the maximum length of vllm)
-TARGET_SAME_ANSWER_COUNT = 3 # The number of answers with the same target is less than this number, the results will be considered invalid.
-DEFAULT_BATCH_SIZE = 16 # The number of problems processed per batch
+ENABLE_THINKING = False
+VLLM_MAX_TOKEN = 4096
+VLLM_TP = 1
+VLLM_GPU_MEMORY_UTILIZATION = 0.75
+MODEL_MAX_TOKEN = 4096
+TARGET_SAME_ANSWER_COUNT = 3
+DEFAULT_BATCH_SIZE = 16
 
-# for thinking
 if ENABLE_THINKING:
     MODEL_TEMPERATUR = 0.6
     MODEL_TOPP = 0.95
     MODEL_TOPK = 20
     MODEL_MINP = 0
 else:
-    # for no thinking
     MODEL_TEMPERATUR = 0.7
     MODEL_TOPP = 0.8
     MODEL_TOPK = 20
     MODEL_MINP = 0
 
-# --- log configuration ---
 current_time_for_log = datetime.now()
 date_str_for_log = current_time_for_log.strftime("%Y%m%d")
 datetime_str_for_log = current_time_for_log.strftime("%Y%m%d_%H%M%S")
@@ -159,11 +153,9 @@ def process_problems_batch(
     logging.info(f"Processing batch starting at problem {batch_start_index + 1} "
                  f"(size: {batch_size}, total: {total_problems}) with vLLM (n={sampling_params_instance.n} samples per problem).")
 
-    # 1. Create prompts for each issue in the batch
     prompts_batch = []
-    valid_problems_in_batch = [] # Only valid problem and their original data are retained
+    valid_problems_in_batch = []
     for i, problem_record in enumerate(problems_batch):
-        # problem_text = problem_record.get("Problem", "")
         problem_text = problem_record.get("Problem") or problem_record.get("problem")
         if not problem_text:
             logging.warning(f"Problem at index {batch_start_index + i} has no 'Problem' text. Skipping in this batch.")
@@ -187,12 +179,10 @@ def process_problems_batch(
         logging.warning("No valid prompts were generated for this batch.")
         return []
 
-    # 2. Call vLLM.generate at once to handle the whole batch
     try:
         request_outputs = llm_instance.generate(prompts_batch, sampling_params_instance)
     except Exception as e:
         logging.error(f"Fatal error during vLLM batch generation: {e}", exc_info=True)
-        # If the entire batch fails, generate an error result for each issue in the batch.
         error_results = []
         for problem_record in valid_problems_in_batch:
              error_results.append({
@@ -204,10 +194,9 @@ def process_problems_batch(
             })
         return error_results
 
-    # 3. Process the returned results and match them with the original question.
     batch_results = []
     for i, single_request_output in enumerate(request_outputs):
-        current_problem_record = valid_problems_in_batch[i] # 结果与有效问题一一对应
+        current_problem_record = valid_problems_in_batch[i]
         current_problem_text = current_problem_record.get("Problem") or current_problem_record.get("problem") or "N/A"
 
         generated_samples_data = []
@@ -245,7 +234,6 @@ def process_problems_batch(
                 count = len(list_of_rationales)
                 output_answer_dict[str(count)].append(list_of_rationales)
 
-        # Combined final result
         batch_results.append({
             "problem": current_problem_text,
             "answer": final_answer_rationale,
@@ -268,7 +256,6 @@ def main():
     current_target_same_answer_count = args.target_same_answer_count
     batch_size = args.batch_size
 
-    # --- File path and naming ---
     current_time_main = datetime.now()
     datetime_str_main = current_time_main.strftime("%Y%m%d_%H%M%S")
     safe_model_name_for_file = re.sub(r'[^\w\.-]', '_', VLLM_MODEL_ID_CONST.split("/")[-1])
@@ -280,7 +267,6 @@ def main():
     output_invalid_filename = f"Sampler_answer_with_{safe_model_name_for_file}_vLLM_{input_file_name_without_ext}_{datetime_str_main}_invalid.jsonl"
     output_invalid_file_path = os.path.join(args.output_dir, output_invalid_filename)
 
-    # --- Sampling Parameters ---
     current_sampling_params = SamplingParams(
         n=args.sample_answer_count,
         temperature=MODEL_TEMPERATUR,
@@ -318,10 +304,8 @@ def main():
              open(output_invalid_file_path, "w", encoding="utf-8") as outfile_invalid:
             
             for i in range(0, total_problems_to_process, batch_size):
-                # 1. Get the problem data of the current batch
                 problems_batch_data = problems_data[i : i + batch_size]
                 
-                # 2. Call the batch processing function
                 results_batch = process_problems_batch(
                     problems_batch_data,
                     i,
@@ -331,7 +315,6 @@ def main():
                     current_sampling_params
                 )
                 
-                # 3. Traverse the batch results and write them to the file
                 for result in results_batch:
                     if not result:
                         continue

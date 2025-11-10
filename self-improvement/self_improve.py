@@ -121,35 +121,34 @@ def sft(yaml_path):
             command,
             env=env,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,  # 合并错误流到标准输出
+            stderr=subprocess.STDOUT,
             text=True,
-            bufsize=1,  # 行缓冲模式
+            bufsize=1, 
         )
         
         print("Training started. Real-time output:")
         print("-" * 50)
         
-        # 实时输出处理
         while True:
             output = process.stdout.readline()
             if not output and process.poll() is not None:
                 break
             if output:
-                print(output.strip())  # 实时输出到命令行
+                print(output.strip()) 
         
         exit_code = process.poll()
         print("-" * 50)
         if exit_code == 0:
-            print("✅ Training completed successfully!")
+            print("Training completed successfully!")
         else:
-            print(f"❌ Training failed with exit code: {exit_code}")
+            print(f"Training failed with exit code: {exit_code}")
             sys.exit(exit_code)
             
     except FileNotFoundError:
-        print("❌ Error: llamafactory-cli not found! Check installation.")
+        print("Error: llamafactory-cli not found! Check installation.")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {str(e)}")
+        print(f"Unexpected error: {str(e)}")
         sys.exit(2)
 
 def main():
@@ -192,7 +191,6 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_path)
     print("thinking mode", args.thinking)
     
-    # 处理数据
     system_prompt = "Please reason step by step, and put your final answer within \\boxed{}."
     ms_prompts = []
     ms_solutions = []
@@ -225,7 +223,6 @@ def main():
             ms_prompts.append(prompt)
             ms_solutions.append(item.get("reference_solution", item.get("solution")))
     
-    # 主循环
     for i in range(args.max_practice_num):
         logging.info(f'run {i}')
         load_model_path = args.model_path if i == 0 else os.path.join(output_model_dir, f'practice_{i-1}')

@@ -1,6 +1,3 @@
-# 用于生成 rationale 冷启动数据-->进行 sft 维护模型
-# 每次都会生成MAX_SFT_DATA_SIZE个，直接拓展原始的数据集
-
 import os
 import time
 import shutil
@@ -13,6 +10,8 @@ import re
 import logging
 import openai 
 from gpt_proxy_client import openai_proxy
+
+# Using GPT-4o to complete the generation of cold-start formate data
 
 LOG_DIR = "./logs"
 LOG_FILE = os.path.join(LOG_DIR, "sft_cold_data_generation.log")
@@ -30,57 +29,6 @@ formatter = logging.Formatter("%(message)s")
 console.setFormatter(formatter)
 logging.getLogger().addHandler(console)
 
-# PROMPT_RATIONALE = """
-# Given the Concepts and Explanations along with the instructions below, develop a **single challenging mathematics problem** suitable for advanced Olympiads
-
-# ## Instructions:
-# A. Select Relevant Concepts: 
-#   1. Carefully analyze the provided concepts and their explanations.
-#   2. Based on this analysis, choose a suitable subset of concepts (at least two; more are welcome if appropriate) that can be naturally and meaningfully integrated into a cohesive, well-focused mathematics problem.
-
-# B. Problem Difficulty Rules:
-#   1. The problem should require deep insight and non-obvious reasoning.
-#   2. It must include **at least two** of the following difficulty features:
-#     a. Multi-step Reasoning: Requires multiple sequential logical steps.
-#     b. Cross-topic Integration: Combines distinct mathematical topics.
-#     c. Implicit or Reverse Logic: Includes hidden conditions or reverse deduction.
-#     d. Distractors: Contains misleading or extraneous conditions.
-#     e. Abstract Modeling: Translates complex scenarios into mathematical form.
-#     f. Multiple Solution Paths: Allows various non-trivial solving methods.
-#     g. Advanced Manipulation: Necessitates sophisticated algebraic or geometric transformations.
-#     h. Extreme Conditions: Focuses on limits or boundary values.
-#     i. Non-standard Representation: Uses unconventional presentation of familiar concepts.
-
-# C. Problem Format Constraints:
-#   1. Generate **only one single problem**, do not generate multiple questions, sub-parts, or a sequence of related questions.
-#   2. The problem should only have a **single, unified solving goal** — not a series of subtasks [no numbered sub-parts (e.g., 1., 2., (a), (b)) and avoid multi-step phrasing such as “first..., then...”. ] — and should be clearly answerable through a focused line of reasoning.
-#   3. The problem must admit a well-defined, verifiable solution — that is, it should have a specific and unambiguous answer such as a numerical value, algebraic expression, equation.
-#   4. The problem should not be a proof-type question. Its primary goal must be to find a specific, verifiable result — not to prove a general statement.
-#   5. Avoid adding any secondary tasks such as "construct an example," "justify your result," or "verify a case" unless such construction is itself the core goal of the problem. **Keep the question focused and free of auxiliary subtasks**.
-
-# ## Output Format:
-# A. Rationale  
-# Provide your reasoning and thought process **Step By Step** for how you constructed the problem, including:
-#   Step 1. Analyze and understand the given concepts in depth.
-#   Step 2. Select a suitable combination of concepts that can be meaningfully integrated.
-#   Step 3. Explain how these concepts are woven together into a unified mathematical scenario.
-#   Step 4. Identify which difficulty features you incorporated and describe how they are reflected in the problem.
-#   Step 5. Formulate the final problem statement clearly and concisely.
-# Enclose your rationale using the following tags:
-# <!-- BEGIN RATIONALE -->
-# [Your construction thought process goes here]
-# <!-- END RATIONALE -->
-
-# B. Problem
-# Present the final problem clearly within the following tags:
-# <!-- BEGIN PROBLEM -->
-# [Your final math problem goes here]
-# <!-- END PROBLEM -->
-
-# Given Concept and Explanation:
-# {CONCEPT_AND_EXPLANATION}
-
-# """
 
 PROMPT_RATIONALE = """
 Given the Concepts and Explanations along with the instructions below, develop a **single challenging mathematics problem** suitable for advanced Olympiads
@@ -137,10 +85,13 @@ Given Concept and Explanation:
 API_KEY = ""
 client = openai_proxy.GptProxy(api_key=API_KEY)
 MODEL = "gpt-4o-2024-11-20"
-SOURCE_DIR = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped_deduplicated.jsonl"
-COLD_SFT_DATA_DIR = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/cold_data_generation/cold-sft-data"
+SOURCE_DIR = "./collect_planetmath_grouped_deduplicated.jsonl" #Concept and Explanation source file
+COLD_SFT_DATA_DIR = "./cold_data_generation/cold-sft-data" #Output directory for cold-start SFT data
+os.makedirs(COLD_SFT_DATA_DIR, exist_ok=True)
+
+#Control the maximum number
 MAX_RETRIES = 10
-MAX_SFT_DATA_SIZE = 20000
+MAX_SFT_DATA_SIZE = 10000
 
 def load_concept_data(source_file: str) -> list:
     with open(source_file, 'r', encoding='utf-8') as f:
@@ -180,22 +131,13 @@ def generate_rationale(concept_and_explanation: str, client) -> str:
     retry_count = 0
     while True:
         try:
-            # response = client.chat.completions.create(
-            #     model=MODEL,
-            #     messages=[
-            #         {"role": "system", "content": "Given the Concepts and Explanations along with the instructions below, develop a single challenging mathematics problem suitable for advanced Olympiads"},
-            #         {"role": "user", "content": user_prompt},
-            #     ],
-            #     stream=False
-            # )
-            # import pprint
             response = client.generate(
                 model=MODEL,
                 messages=[
                     # {"role": "system", "content": "Given the Concepts and Explanations along with the instructions below, develop a single challenging mathematics problem suitable for advanced Olympiads"},
                     {"role": "user", "content": user_prompt}
                 ],
-                transaction_id="lsch_test_0065"
+                transaction_id=""
             )
             # print(response.json())
             # reply = response.choices[0].message.content
@@ -211,7 +153,7 @@ if __name__ == "__main__":
     SAMPLE_NUM = 5
     concept_data = load_concept_data(SOURCE_DIR)
     for i in range(MAX_SFT_DATA_SIZE):
-        logging.info(f"正在采样第 {i + 1} 次数据")
+        logging.info(f"Sampling the {i + 1}th data set...")
         sampled_data = sample_concept_data(concept_data, SAMPLE_NUM)
         idx = 1
         c_and_e = ""
@@ -220,8 +162,8 @@ if __name__ == "__main__":
             explanation_text = sampled_data[idx - 1]["Explanation"]
             merged_concept = str(idx) + ". " + concept_text + ": " + explanation_text + "\n"
             c_and_e += merged_concept
-        logging.info(f"采样的概念集合 {c_and_e}")
+        logging.info(f"The concept set of sampling {c_and_e}")
         # concept_and_explanation = sampled_data[0]["Concept"] + ": " + sampled_data[0]["Explanation"]
         rationale = generate_rationale(c_and_e, client)
-        logging.info(f"生成的推理和问题: {rationale}")
-        save_rationale_data(c_and_e, rationale, os.path.join(COLD_SFT_DATA_DIR, f"cold_data_gpt4o-no-prove-0519.jsonl"))
+        logging.info(f"Generated rationale and questions: {rationale}")
+        save_rationale_data(c_and_e, rationale, os.path.join(COLD_SFT_DATA_DIR, f"cold_data_gpt4o-no-prove.jsonl"))

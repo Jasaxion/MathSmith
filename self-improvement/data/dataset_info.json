@@ -716,7 +716,7 @@
     "folder": "python"
   },
   "MathSmith_Self_Improvement":{
-      "file_name": "/media/data2/LLM/MathSmith/self-improvement/data/Self_Improvement_Data.json",
+      "file_name": "./Self_Improvement_Data.json",
       "columns": {
         "prompt": "instruction",
         "query": "input",

@@ -3,16 +3,18 @@ import time
 import json
 import openai
 
-# === 配置部分 ===
+# Using GPT-4o with Assistants API to extract math concepts and explanation from PlanetMath markdown files
+
 openai.api_key = "sk-xxx"
-MODEL = "gpt-4"
-MD_FILE_PATH = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/open_corpus/planetmath/article-md-clean"
-OUTPUT_JSONL = "/home/mnt/zhanshaoxiong/pipeline/RL_math_model/collection_concept_and_detail/collect_planetmath_grouped.jsonl"
+MODEL = "gpt-4o"
+# crawled markdown from planetmath
+MD_FILE_PATH = "./planetmath/article-md-clean"
+OUTPUT_JSONL = "./planetmath/collect_planetmath_grouped.jsonl"
 
 def upload_md_file(file_path: str) -> str:
     with open(file_path, "rb") as f:
         response = openai.files.create(file=f, purpose="assistants")
-    print(f"✅ Uploaded: {file_path} → file_id = {response.id}")
+    print(f"Uploaded: {file_path} → file_id = {response.id}")
     return response.id
 
 def create_assistant() -> str:
@@ -34,7 +36,7 @@ def create_assistant() -> str:
         model=MODEL,
         tools=[{"type": "file_search"}],
     )
-    print(f"✅ Assistant created: {assistant.id}")
+    print(f"Assistant created: {assistant.id}")
     return assistant.id
 
 def run_extraction(file_id: str, assistant_id: str) -> str:
@@ -58,7 +60,7 @@ def run_extraction(file_id: str, assistant_id: str) -> str:
         if status == "completed":
             break
         elif status in ["failed", "cancelled", "expired"]:
-            raise RuntimeError(f"❌ Run failed with status: {status}")
+            raise RuntimeError(f"Run failed with status: {status}")
         time.sleep(2)
 
     messages = openai.beta.threads.messages.list(thread_id=thread.id)
@@ -78,32 +80,32 @@ def parse_extracted_text(text: str):
             try:
                 concepts.append(json.loads(line))
             except Exception:
-                print(f"⚠️ Skipped invalid JSON: {line}")
+                print(f"Skipped invalid JSON: {line}")
         elif line.lower().startswith("categories:"):
             cat_part = line[len("categories:"):].strip()
             try:
                 categories = json.loads(cat_part.replace("'", '"'))  # handle single quotes
             except Exception:
-                print(f"⚠️ Failed to parse category list: {cat_part}")
+                print(f"Failed to parse category list: {cat_part}")
     return concepts, categories
 
 def write_grouped_output(concepts, categories, output_path, source_file):
     if not concepts:
-        print(f"⚠️ No concepts extracted from {source_file}")
+        print(f"No concepts extracted from {source_file}")
         return
     with open(output_path, "a", encoding="utf-8") as f:
         for concept in concepts:
             concept["source"] = source_file
             concept["categories"] = categories if categories else ["Uncategorized"]
             f.write(json.dumps(concept, ensure_ascii=False) + "\n")
-    print(f"✅ Saved concepts from {source_file} with categories: {categories}")
+    print(f"Saved concepts from {source_file} with categories: {categories}")
 
 if __name__ == "__main__":
     assistant_id = create_assistant()
     md_files = [f for f in os.listdir(MD_FILE_PATH) if f.endswith(".md")]
 
     if not md_files:
-        raise FileNotFoundError(f"❌ No .md files in: {MD_FILE_PATH}")
+        raise FileNotFoundError(f"No .md files in: {MD_FILE_PATH}")
 
     for md_file in md_files:
         full_path = os.path.join(MD_FILE_PATH, md_file)
@@ -111,7 +113,7 @@ if __name__ == "__main__":
         result_text = run_extraction(file_id, assistant_id)
 
         if "Not a math concept" in result_text:
-            print(f"ℹ️ Skipped non-math file: {md_file}")
+            print(f"Skipped non-math file: {md_file}")
             continue
 
         concepts, categories = parse_extracted_text(result_text)

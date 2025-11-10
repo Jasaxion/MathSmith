@@ -1,6 +1,6 @@
 FORCE_TORCHRUN=1 llamafactory-cli train ./sft/MathSmith_Evaluator_Qwen_Math_1_5B.yaml
 
-model_name='/media/data2/LLM/models/qwen/Qwen/Qwen2___5-Math-1___5B'
+model_name='Qwen/Qwen2.5-Math-1.5B'
 output_dir='output/qwen'
 n_gpus=1
 n=1

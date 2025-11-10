@@ -1,5 +1,3 @@
-# Math Smith Reward Model
-
 import requests
 from transformers import AutoTokenizer
 import re, torch
@@ -14,18 +12,19 @@ model_name = "Qwen/Qwen3_30B_A3B"
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# Using multiple vllm services to accelerate inference speed and complete reward computation.
 API_URL_LIST = [
     "",
 ]
 SERVER_N = len(API_URL_LIST)
 REASONING_ANSWER_PROMPT = "Please reason step by step, and put your final answer within \\boxed{}.\n"
 USE_GROUP_COT_LEN = False
-MAX_GEN_TOKEN = 32768 #控制最大生成长度
-TARGET_SAMPLE_N = 3 #单个问题采样答案的次数
-USE_CONSIST_R = True #是否启用一致性奖励
-TARGET = 2 #合适的一致性奖励
-R_COT_WEIGHT = 0.7 #思维链长度奖励权重
-R_CONSIST_WEIGHT = 0.3 #一致性奖励权重
+MAX_GEN_TOKEN = 32768 # Control the maximum generation length for vllm
+TARGET_SAMPLE_N = 3 # Number of samples to generate per prompt
+USE_CONSIST_R = True # Whether to use consistency reward
+TARGET = 2 # Target frequency for consistency reward
+R_COT_WEIGHT = 0.7 # CoT length reward weight (0.7 for default)
+R_CONSIST_WEIGHT = 0.3 # Consistency reward weight (0.3 for default)
 REWARD_FILTER_DATA_OUTPUT_PATH = "../data/rl_reward_collect_data/collect_reward_data.jsonl"
 
 def split_prompts(prompts, n):
@@ -51,7 +50,7 @@ def cot_length_rw(response_list):
     
     return r_cot_len, avg_cot_len, cot_lengths
 
-# 8192 dynamic cot length reward
+# 8192 dynamic cot length reward for medium difficulty
 # def cot_length_rw(response_list):
 #     cot_lengths = []
 #     for res in response_list:
@@ -175,6 +174,7 @@ def send_batch(api_url, indexed_prompts):
         # "presence_penalty": 1.2,
         "n": TARGET_SAMPLE_N
     }
+    # Legacy payload settings (Unstable for results)
     # payload = {
     #     "prompt": list(prompts),
     #     "max_tokens": MAX_GEN_TOKEN,
@@ -235,7 +235,7 @@ def reward_fn(prompts, responses):
     rewards = []
     assert len(results) == len(req_prompts)
 
-    # 使用组平均的 cot 长度作为奖励
+    # Using the average cot length of the group as a reward.
     if(USE_GROUP_COT_LEN):
         group_map = defaultdict(list)
         for idx, prompt in enumerate(prompts):
@@ -245,10 +245,10 @@ def reward_fn(prompts, responses):
             group_results = [results[i] for i in idx_list]
 
             print("================================")
-            print("[DEBUG] Using Group Cot Length Reward!")
-            print("[DEBUG] Total Prompts Sample: ", len(group_results))
+            print("Using Group Cot Length Reward!")
+            print("Total Prompts Sample: ", len(group_results))
 
-            # 计算组平均 CoT 长度
+            # Calculate the average CoT length for the group
             group_cot_list = []
             for i, output_list in enumerate(group_results):
                 choices_list = []
@@ -269,15 +269,15 @@ def reward_fn(prompts, responses):
                 else:
                     r_cot_len = avg_cot_len / group_ave_cot_len
 
-                print("[Debug] Format reward: ", r_format_list[global_idx])
-                print("[Debug] Ave COT Length: ", avg_cot_len)
-                print("[Debug] Group Ave COT Length: ", group_ave_cot_len)
-                print("[Debug] COT Length reward: ", r_cot_len)
+                print("Format reward: ", r_format_list[global_idx])
+                print("Ave COT Length: ", avg_cot_len)
+                print("Group Ave COT Length: ", group_ave_cot_len)
+                print("COT Length reward: ", r_cot_len)
 
                 if USE_CONSIST_R:
                     r_consist, max_freq = consistency_rw(choices_list)
-                    print("[Debug] Max Consistance frequency: ", max_freq)
-                    print("[Debug] Consist reward: ", r_consist)
+                    print("Max Consistance frequency: ", max_freq)
+                    print("Consist reward: ", r_consist)
                     reward = r_format_list[global_idx] + (R_COT_WEIGHT * r_cot_len + R_CONSIST_WEIGHT * r_consist)
                 else:
                     reward = r_format_list[global_idx] + r_cot_len
@@ -297,7 +297,7 @@ def reward_fn(prompts, responses):
                 sample_promblem_and_answer['output'] = responses[global_idx]
                 save_jsonl(sample_promblem_and_answer, REWARD_FILTER_DATA_OUTPUT_PATH)
 
-                print("[Debug] Final reward: ", reward)
+                print("Final reward: ", reward)
                 print("================================")
                 rewards[global_idx] = reward
     else:
@@ -309,17 +309,15 @@ def reward_fn(prompts, responses):
             r_cot_len, avg_cot_len, cot_lengths = cot_length_rw(choices_list)
             
             print("================================")
-            print("[Debug] Using Default reward method!")
-            print("[Debug] Ave COT Length: ", avg_cot_len)
-            # print("[Debug] Ave COT Length (log): ", avg_log)
-            print("[Debug] All Cot Length: ", cot_lengths)
-            # print("[Debug] All Cot Length (log): ", log_scaled)
-            print("[Debug] Format reward: ", r_format_list[i])
-            print("[Debug] COT Length reward: ", r_cot_len)
+            print("Using Default reward method!")
+            print("Ave COT Length: ", avg_cot_len)
+            print("All Cot Length: ", cot_lengths)
+            print("Format reward: ", r_format_list[i])
+            print("COT Length reward: ", r_cot_len)
             if USE_CONSIST_R:
                 r_consist, max_freq = consistency_rw(choices_list)
-                print("[Debug] Max Consistance frequency: ", max_freq)
-                print("[Debug] Consist reward: ", r_consist)
+                print("Max Consistance frequency: ", max_freq)
+                print("Consist reward: ", r_consist)
                 if (r_format_list[i] <= 0.0):
                     r_cot_len = 0.0
                     r_consist = 0.0
@@ -336,9 +334,7 @@ def reward_fn(prompts, responses):
             sample_promblem_and_answer['problem'] = req_prompts[i]
             sample_promblem_and_answer['r_format'] = r_format_list[i]
             sample_promblem_and_answer['avg_cot_len'] = avg_cot_len
-            # sample_promblem_and_answer['avg_log'] = avg_log
             sample_promblem_and_answer['cot_lengths'] = cot_lengths
-            # sample_promblem_and_answer['log_scaled'] = log_scaled
             sample_promblem_and_answer['r_cot_len'] = r_cot_len
             if USE_CONSIST_R:
                 sample_promblem_and_answer['r_consist'] = r_consist
@@ -347,12 +343,7 @@ def reward_fn(prompts, responses):
             sample_promblem_and_answer['output'] = responses[i]
             save_jsonl(sample_promblem_and_answer, REWARD_FILTER_DATA_OUTPUT_PATH)
 
-            print(">>>>>>>>>>>>>Current Prompt<<<<<<<<<<<<<<<<<")
-            print(prompts[i])
-            print(">>>>>>>>>>>>>Current Response<<<<<<<<<<<<<<<<<")
-            print(responses[i])
-            print(">>>>>>>>>>>>>++++++++++++++++<<<<<<<<<<<<<<<<<")
-            print("[DEBUG] Final reward: ", reward)
+            print("Final reward: ", reward)
             print("================================")
             rewards.append(reward)
 

@@ -1,5 +1,5 @@
 ### model
-model_name_or_path: /media/data2/LLM/models/qwen/Qwen/Qwen2___5-Math-1___5B
+model_name_or_path: Qwen/Qwen2.5-Math-1.5B
 trust_remote_code: true
 
 ### method

@@ -4,10 +4,9 @@ import json
 from datasets import load_dataset
 from tqdm import tqdm
 
-# 输出目录
 os.makedirs("./open_data_problem", exist_ok=True)
 
-# 数据集配置列表: (dataset_name, config_name, split, field)
+# dataset config (dataset_name, config_name, split, field)
 DATASETS = [
     ("Maxwell-Jia/AIME_2024", None, "train", "Problem"),
     ("opencompass/AIME2025", "AIME2025-I", "test", "question"),
@@ -23,9 +22,8 @@ DATASETS = [
 ]
 
 def extract_prompt_problem(prompt: str) -> str:
-    # 替换全角竖线为半角
     prompt = prompt.replace("｜", "|")
-    # 正则提取 <|User|> 和 <|Assistant|> 之间内容
+    # processing and extract <|User|> and <|Assistant|> content
     match = re.search(r"<\|User\|>(.*?)<\|Assistant\|>", prompt, re.DOTALL)
     return match.group(1).strip() if match else None
 
