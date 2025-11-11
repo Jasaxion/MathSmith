@@ -11,9 +11,7 @@
 
 MathSmith is a framework for enhancing mathematical reasoning capabilities of large language models by generating challenging synthetic problems from scratch. Unlike methods that modify existing problems, MathSmith creates novel problems through a reinforced policy, ensuring diversity and scalability.
 
-<p align="center">
-  <img src="./docs/MathSmith-Framework.png" width="50%">
-</p>
+<img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Frameword.png" width="50%">
 
 ## Resources
 
