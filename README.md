@@ -11,7 +11,9 @@
 
 MathSmith is a framework for enhancing mathematical reasoning capabilities of large language models by generating challenging synthetic problems from scratch. Unlike methods that modify existing problems, MathSmith creates novel problems through a reinforced policy, ensuring diversity and scalability.
 
-<img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Frameword.png" width="50%">
+<p align="center">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Frameword.png" width="90%">
+</p>
 
 ## Resources
 
@@ -90,7 +92,10 @@ bash eval.sh
 
 Run the weakness-focused improvement pipeline: [Instruction](https://github.com/Jasaxion/MathSmith/blob/main/self-improvement/README.md)
 
-![Self-Improvement Pipeline](./docs/MathSmith-Self-improvement.png)
+<p align="center">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Self-improvement.png" width="60%">
+</p>
+
 
 ```bash
 cd self-improvement
