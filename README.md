@@ -142,11 +142,11 @@ MathSmith consistently outperforms baselines across five benchmarks under both s
 - **Hard**: AIME2024, AIME2025, OlympiadBench
 
 <p align="center">
-  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/main_result.png" width="50%">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/main_result.png" width="90%">
 </p>
 
 <p align="center">
-  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/data_scaling.png" width="48%">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/data_scaling.png" width="46%">
   <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/model_scaling.png" width="48%">
 </p>
 
