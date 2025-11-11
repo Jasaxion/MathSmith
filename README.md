@@ -93,7 +93,7 @@ bash eval.sh
 Run the weakness-focused improvement pipeline: [Instruction](https://github.com/Jasaxion/MathSmith/blob/main/self-improvement/README.md)
 
 <p align="center">
-  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Self-improvement.png" width="60%">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/MathSmith-Self-improvement.png" width="50%">
 </p>
 
 
@@ -141,9 +141,15 @@ MathSmith consistently outperforms baselines across five benchmarks under both s
 - **Easy & Medium**: GSM8K, MATH-500
 - **Hard**: AIME2024, AIME2025, OlympiadBench
 
-![main_result](./docs/main_result.png)
+<p align="center">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/main_result.png" width="50%">
+</p>
 
-![data_scaling](./docs/data_scaling.png)![model_scaling](./docs/model_scaling.png) 
+<p align="center">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/data_scaling.png" width="48%">
+  <img src="https://github.com/Jasaxion/MathSmith/blob/main/docs/model_scaling.png" width="48%">
+</p>
+
 
 ## Citation
 
