@@ -156,10 +156,13 @@ MathSmith consistently outperforms baselines across five benchmarks under both s
 If you find this work useful, please cite:
 
 ```bibtex
-@article{zhan2025mathsmith,
-  title={MathSmith: Towards Extremely Hard Mathematical Reasoning by Forging Synthetic Problems with a Reinforced Policy},
+@inproceedings{zhan2026mathsmith,
+  title={Mathsmith: Towards extremely hard mathematical reasoning by forging synthetic problems with a reinforced policy},
   author={Zhan, Shaoxiong and Lai, Yanlin and Lu, Ziyu and Lin, Dahua and Yang, Ziqing and Tan, Fei},
-  journal={arXiv preprint arXiv:2508.05592},
-  year={2025}
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={40},
+  number={41},
+  pages={34602--34610},
+  year={2026}
 }
 ```
